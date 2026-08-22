@@ -27,7 +27,7 @@ enabled = false
 min_commit_interval = 10
 
 [test]
-command = "deliver --spec deliver.toml --strict --progress never"
+command = "deliver --spec deliver.toml --strict"
 required = true
 
 [staging]

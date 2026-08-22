@@ -6,7 +6,7 @@
 [[file]]
 path = "VERSION"
 required = true
-require_regex = ['^0\.1\.0']
+require_regex = ['^\d+\.\d+\.\d+']
 
 [[file]]
 path = "README.md"
