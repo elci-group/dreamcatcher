@@ -70,7 +70,7 @@ pub fn discover_with_progress<F: FnMut(usize)>(
                     }
                     continue;
                 }
-                };
+            };
             if !entry.file_type().is_file() {
                 continue;
             }
@@ -98,6 +98,13 @@ pub fn discover_with_progress<F: FnMut(usize)>(
             seen_ids.insert(dream.id.0.clone(), dream.path.clone());
             tracing::debug!(path = %dream.path, id = %dream.id.0, "parsed dream");
             dreams.push(dream);
+        }
+        if walk_errors > MAX_WALK_ERRORS {
+            warnings.push(format!(
+                "… and {} more walk errors under {} (permission-denied subtrees)",
+                walk_errors - MAX_WALK_ERRORS,
+                root.display()
+            ));
         }
     }
     on_progress(stats.files_scanned);
