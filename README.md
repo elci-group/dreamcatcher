@@ -78,8 +78,43 @@ dreamcatcher --root ~/dreams -o deliverables
 dreamcatcher validate             # parse-check only
 dreamcatcher ir --emit ir.json    # dump the IR graph
 dreamcatcher --dry-run --format json
+dreamcatcher -v                   # info-level telemetry; -vv for debug
 dreamcatcher init                 # scaffold dreamcatcher.toml
 ```
+
+## Output & telemetry
+
+Text output is emoji-led and (on an interactive terminal) colourised with
+an animated moon-phase spinner during long phases:
+
+```
+🌙 dreamcatcher 0.1.x — compiling the dreamspace
+
+📜 3 dreams   🕸️ 1 clusters   ⚔️ 2 conflicts   🎯 2 deliverables
+
+🎯 deliverables (priority order)
+┌──────────────────────┬──────────────────────────┬──────────┬──────┬──────┬─────────────────┐
+│ deliverable          │ slug                     │ priority │ ⚡   │ 📜   │ status          │
+├──────────────────────┼──────────────────────────┼──────────┼──────┼──────┼─────────────────┤
+│ deliver-conflict-001 │ kaptaind-evolution-2-dr… │ high     │ 42   │ 2    │ 🙋 needs decision │
+└──────────────────────┴──────────────────────────┴──────────┴──────┴──────┴─────────────────┘
+
+🔍 scanned 12034 files across /home/you/dreams
+⏱️ discovery 820ms · analysis 3ms · emit 4ms · total 827ms
+```
+
+- **No more silent walking.** Discovery skips all hidden directories plus
+  `target/` and `node_modules/` (an explicitly passed `--root` is always
+  entered), reports every 1000 files scanned on the spinner, and the final
+  report carries files-scanned and per-phase timings. Earlier builds
+  appeared to hang because they walked `.rustup`-scale trees silently.
+- **Verbosity**: warnings by default; `-v` adds per-phase `tracing` info
+  (including every file written); `-vv` adds debug detail. `RUST_LOG`
+  overrides.
+- **Machine-friendly**: `--format json` emits pure JSON on stdout with the
+  same telemetry (`timings`, `files_scanned`, `roots`) while phase lines
+  stay on stderr. Colours and the spinner disable automatically for pipes
+  and honour `NO_COLOR`.
 
 Outputs in the `--out` directory:
 
