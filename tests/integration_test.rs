@@ -30,6 +30,21 @@ fn run_in(dir: &Path, args: &[&str]) -> (bool, String) {
     )
 }
 
+/// Like `run_in` but keeps stdout and stderr separate (stdout carries the
+/// JSON report; stderr carries phase telemetry).
+fn run_split(dir: &Path, args: &[&str]) -> (bool, String, String) {
+    let out = bin()
+        .current_dir(dir)
+        .args(args)
+        .output()
+        .expect("run dreamcatcher");
+    (
+        out.status.success(),
+        String::from_utf8_lossy(&out.stdout).to_string(),
+        String::from_utf8_lossy(&out.stderr).to_string(),
+    )
+}
+
 #[test]
 fn single_dream_produces_one_deliverable() {
     let tmp = tempfile::tempdir().unwrap();
@@ -96,11 +111,6 @@ fn conflict_emits_human_decision() {
     );
     let (ok, out) = run_in(tmp.path(), &["--out", "deliverables", "--format", "json"]);
     assert!(ok, "{out}");
-    let report: serde_json::Value =
-        serde_json::from_str(out.trim_start_matches('\n').lines().next().unwrap_or(&out))
-            .ok()
-            .unwrap_or_default();
-    let _ = report;
     let manifest = std::fs::read_to_string(tmp.path().join("deliverables/manifest.json")).unwrap();
     assert!(manifest.contains("conflict"), "{manifest}");
     assert!(
@@ -193,4 +203,74 @@ fn output_is_deterministic() {
             p.display()
         );
     }
+}
+
+#[test]
+fn text_output_is_emoji_led_and_telemetrised() {
+    let tmp = tempfile::tempdir().unwrap();
+    write_dream(
+        tmp.path(),
+        "one",
+        "[intent]\nstatement = \"make it pretty\"\n[subject]\nname = \"kaptaind\"\n",
+    );
+    let (ok, out) = run_in(tmp.path(), &["--out", "deliverables"]);
+    assert!(ok, "{out}");
+    assert!(out.contains('🌙'), "missing brand banner: {out}");
+    assert!(out.contains('🎯'), "missing deliverable section: {out}");
+    assert!(out.contains('🔍'), "missing scan telemetry: {out}");
+    assert!(out.contains("files"), "missing files-scanned count: {out}");
+    assert!(out.contains("total"), "missing timings: {out}");
+}
+
+#[test]
+fn json_report_carries_telemetry() {
+    let tmp = tempfile::tempdir().unwrap();
+    write_dream(
+        tmp.path(),
+        "one",
+        "[intent]\nstatement = \"telemetry please\"\n[subject]\nname = \"kaptaind\"\n",
+    );
+    let (ok, out, err) = run_split(tmp.path(), &["--out", "deliverables", "--format", "json"]);
+    assert!(ok, "stdout: {out}\nstderr: {err}");
+    let v: serde_json::Value = serde_json::from_str(out.trim())
+        .unwrap_or_else(|e| panic!("stdout not pure JSON ({e}): {out}\n--- stderr: {err}"));
+    assert!(v["timings"]["total_ms"].is_u64());
+    assert!(v["files_scanned"].is_u64());
+    assert!(v["roots"].as_array().is_some());
+    assert!(err.contains("🔍 discovery"), "phase telemetry missing: {err}");
+}
+
+#[test]
+fn hidden_directories_are_not_scanned() {
+    let tmp = tempfile::tempdir().unwrap();
+    std::fs::create_dir(tmp.path().join(".rustup-huge")).unwrap();
+    std::fs::write(
+        tmp.path().join(".rustup-huge/trap.dream"),
+        "[intent]\nstatement = \"should never be seen\"\n",
+    )
+    .unwrap();
+    let (ok, out, err) = run_split(tmp.path(), &["--out", "deliverables", "--format", "json"]);
+    assert!(ok, "stdout: {out}\nstderr: {err}");
+    let v: serde_json::Value = serde_json::from_str(out.trim())
+        .unwrap_or_else(|e| panic!("stdout not pure JSON ({e}): {out}"));
+    assert_eq!(
+        v["dreams"].as_u64().unwrap(),
+        0,
+        "hidden dir leaked into discovery"
+    );
+}
+
+#[test]
+fn validate_output_is_styled() {
+    let tmp = tempfile::tempdir().unwrap();
+    write_dream(
+        tmp.path(),
+        "ok-one",
+        "[intent]\nstatement = \"fine\"\n",
+    );
+    let (ok, out) = run_in(tmp.path(), &["validate"]);
+    assert!(ok, "{out}");
+    assert!(out.contains('✅'), "missing per-dream check mark: {out}");
+    assert!(out.contains('🌙'), "missing summary banner: {out}");
+    assert!(out.contains("ok-one"), "{out}");
 }
