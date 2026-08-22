@@ -9,15 +9,8 @@ use clap::Parser;
 use dreamcatcher::cli::Cli;
 
 fn main() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("warn")),
-        )
-        .init();
     let cli = Cli::parse();
-    let code = dreamcatcher::cli_run(&cli)?;
-    match code {
+    match dreamcatcher::cli_run(&cli)? {
         0 => Ok(()),
         n => std::process::exit(n),
     }

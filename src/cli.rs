@@ -44,6 +44,11 @@ pub struct Cli {
     #[arg(long)]
     pub strict: bool,
 
+    /// Increase telemetry verbosity: -v for info, -vv for debug
+    /// (RUST_LOG overrides).
+    #[arg(short = 'v', long, action = clap::ArgAction::Count)]
+    pub verbose: u8,
+
     /// Subcommand.
     #[command(subcommand)]
     pub command: Option<Command>,
