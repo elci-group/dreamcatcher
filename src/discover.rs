@@ -46,6 +46,10 @@ pub fn discover_with_progress<F: FnMut(usize)>(
         };
         let canonical = root.canonicalize().unwrap_or_else(|_| root.clone());
         stats.roots.push(canonical.display().to_string());
+        // Unreadable subtrees (permission-denied chroots and the like) are
+        // aggregated: show the first few, then one count line.
+        const MAX_WALK_ERRORS: usize = 5;
+        let mut walk_errors = 0usize;
         for entry in walkdir::WalkDir::new(&root)
             .sort_by_file_name()
             .into_iter()
@@ -60,10 +64,13 @@ pub fn discover_with_progress<F: FnMut(usize)>(
             let entry = match entry {
                 Ok(e) => e,
                 Err(e) => {
-                    warnings.push(format!("walk error under {}: {e}", root.display()));
+                    walk_errors += 1;
+                    if walk_errors <= MAX_WALK_ERRORS {
+                        warnings.push(format!("walk error under {}: {e}", root.display()));
+                    }
                     continue;
                 }
-            };
+                };
             if !entry.file_type().is_file() {
                 continue;
             }
