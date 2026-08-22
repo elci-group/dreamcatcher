@@ -34,10 +34,7 @@ impl Spinner {
             thread::spawn(move || {
                 let mut frame = 0usize;
                 while !stop.load(Ordering::Relaxed) {
-                    let msg = message
-                        .lock()
-                        .map(|m| truncate(&m, 64))
-                        .unwrap_or_default();
+                    let msg = message.lock().map(|m| truncate(&m, 64)).unwrap_or_default();
                     eprint!("\r{} {msg}", MOON[frame % MOON.len()]);
                     let _ = std::io::stderr().flush();
                     frame += 1;

@@ -1,4 +1,4 @@
-.TH DREAMCATCHER 1 "August 2026" "dreamcatcher 0.1.1" "User Commands"
+.TH DREAMCATCHER 1 "August 2026" "dreamcatcher" "User Commands"
 .SH NAME
 dreamcatcher \- compile .dream files into .deliver execution contracts
 .SH SYNOPSIS
@@ -11,6 +11,11 @@ passes (clustering, conflict detection, dependency resolution, synthesis,
 prioritisation) and emits \fB.deliver\fR execution contracts for Dreamboat.
 .PP
 Dreams are possibilities. Delivers are decisions. Dreamboat is action.
+.PP
+Discovery never enters hidden directories, target/ or node_modules/;
+an explicitly named \-\-root is always entered. Interactive text output is
+colourised (honours NO_COLOR) with an animated moon\-phase spinner;
+JSON output stays machine\-readable, with phase telemetry on stderr.
 .SH OPTIONS
 .TP
 .BR \-\-root \ \fIDIR\fR
@@ -30,6 +35,10 @@ Analyse and report without writing deliverables.
 .TP
 .B \-\-strict
 Treat warnings as errors.
+.TP
+.BR \-v ", " \-\-verbose
+Increase telemetry verbosity: \-v info (per\-phase events, files written),
+\-vv debug. RUST_LOG overrides.
 .SH COMMANDS
 .TP
 .B validate

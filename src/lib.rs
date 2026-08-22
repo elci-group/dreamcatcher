@@ -44,9 +44,8 @@ pub fn cli_run(cli: &cli::Cli) -> anyhow::Result<i32> {
     };
     let _ = tracing_subscriber::fmt()
         .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                tracing_subscriber::EnvFilter::new(default_filter)
-            }),
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new(default_filter)),
         )
         .with_target(false)
         .try_init();
@@ -155,10 +154,11 @@ fn dump_ir(
     roots: &[std::path::PathBuf],
     animated: bool,
 ) -> anyhow::Result<i32> {
-    let (dreams, stats, warnings) = match discover_or_report(roots, animated, "🕸️  discovering dreams") {
-        Ok(v) => v,
-        Err(code) => return Ok(code),
-    };
+    let (dreams, stats, warnings) =
+        match discover_or_report(roots, animated, "🕸️  discovering dreams") {
+            Ok(v) => v,
+            Err(code) => return Ok(code),
+        };
     let ir = ir::DreamIr::build(dreams);
     let analysis = analyze::analyse(&ir, config);
     let mut full = ir.clone();
@@ -268,7 +268,10 @@ fn compile(
     };
     let emit_ms = t2.elapsed().as_millis() as u64;
     if cli.dry_run {
-        eprintln!("{} dry-run: deliverables not written", style::paint(Color::Dim, "🧪"));
+        eprintln!(
+            "{} dry-run: deliverables not written",
+            style::paint(Color::Dim, "🧪")
+        );
     } else {
         eprintln!(
             "📦 emitted {} file(s) → {}",

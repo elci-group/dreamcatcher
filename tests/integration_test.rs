@@ -237,7 +237,10 @@ fn json_report_carries_telemetry() {
     assert!(v["timings"]["total_ms"].is_u64());
     assert!(v["files_scanned"].is_u64());
     assert!(v["roots"].as_array().is_some());
-    assert!(err.contains("🔍 discovery"), "phase telemetry missing: {err}");
+    assert!(
+        err.contains("🔍 discovery"),
+        "phase telemetry missing: {err}"
+    );
 }
 
 #[test]
@@ -263,11 +266,7 @@ fn hidden_directories_are_not_scanned() {
 #[test]
 fn validate_output_is_styled() {
     let tmp = tempfile::tempdir().unwrap();
-    write_dream(
-        tmp.path(),
-        "ok-one",
-        "[intent]\nstatement = \"fine\"\n",
-    );
+    write_dream(tmp.path(), "ok-one", "[intent]\nstatement = \"fine\"\n");
     let (ok, out) = run_in(tmp.path(), &["validate"]);
     assert!(ok, "{out}");
     assert!(out.contains('✅'), "missing per-dream check mark: {out}");
