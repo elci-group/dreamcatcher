@@ -1,0 +1,66 @@
+.TH DREAMCATCHER 1 "August 2026" "dreamcatcher 0.1.0" "User Commands"
+.SH NAME
+dreamcatcher \- compile .dream files into .deliver execution contracts
+.SH SYNOPSIS
+.B dreamcatcher
+[\fIOPTIONS\fR] [\fICOMMAND\fR]
+.SH DESCRIPTION
+Dreamcatcher is the compiler of the Dream suite. It discovers
+\fB.dream\fR files, builds a Dream IR graph, runs deterministic analysis
+passes (clustering, conflict detection, dependency resolution, synthesis,
+prioritisation) and emits \fB.deliver\fR execution contracts for Dreamboat.
+.PP
+Dreams are possibilities. Delivers are decisions. Dreamboat is action.
+.SH OPTIONS
+.TP
+.BR \-\-root \ \fIDIR\fR
+Discovery root (repeatable; default: current directory).
+.TP
+.BR \-c ", " \-\-config \ \fIPATH\fR
+Config file path (default: built\-in defaults).
+.TP
+.BR \-o ", " \-\-out \ \fIDIR\fR
+Output directory (default: ./deliverables).
+.TP
+.BR \-f ", " \-\-format \ \fITEXT|JSON\fR
+Report format (default: text).
+.TP
+.B \-\-dry\-run
+Analyse and report without writing deliverables.
+.TP
+.B \-\-strict
+Treat warnings as errors.
+.SH COMMANDS
+.TP
+.B validate
+Parse\-check all .dream files without emitting.
+.TP
+.B ir [\-\-emit \fIPATH\fR]
+Dump the Dream IR graph as JSON.
+.TP
+.B init
+Write a commented dreamcatcher.toml template.
+.TP
+.B schema
+Print the JSON Schema of the .dream format.
+.TP
+.B completions \fISHELL\fR
+Generate shell completions.
+.SH EXIT STATUS
+0 on success, 1 on parse errors / dangling references / dependency cycles,
+2 on warnings in \-\-strict mode.
+.SH FILES
+.TP
+.I *.dream
+TOML dream input files.
+.TP
+.I deliverables/<slug>.deliver
+YAML execution contracts with provenance.
+.TP
+.I deliverables/<slug>.deliver.json
+Dreamboat\-compatible JSON sidecars.
+.TP
+.I deliverables/manifest.json
+The deliver DAG in priority order.
+.SH SEE ALSO
+dreamboat(1), deliver(1)

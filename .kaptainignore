@@ -1,0 +1,5 @@
+target/
+deliverables/
+.kaptaind/
+*.log
+.env*

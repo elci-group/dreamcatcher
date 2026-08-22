@@ -1,0 +1,21 @@
+# dreamcatcher configuration
+# Copy to dreamcatcher.toml and edit; every key is optional.
+
+# Directories scanned for *.dream files when no --root is given.
+roots = ["."]
+
+# Directory where .deliver contracts and manifest.json are written.
+out_dir = "deliverables"
+
+# Token-overlap similarity (0.0-1.0) above which two dreams converge
+# into one deliverable. Lower = more merging.
+cluster_similarity_threshold = 0.34
+
+[weights]
+# Prioritisation scoring: score = priority*w + evidence*w + convergence*w
+#                            - effort*w - risk*w
+priority = 10
+evidence = 2
+convergence = 3
+effort = 3
+risk = 2

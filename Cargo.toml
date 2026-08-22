@@ -1,0 +1,39 @@
+# Copyright (c) 2026 sal
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "dreamcatcher"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+description = "Compile and reason about .dream files, emitting .deliver execution contracts"
+repository = "home:dreamcatcher"
+keywords = ["dreams", "delivers", "compiler", "planning"]
+categories = ["command-line-utilities"]
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[dependencies]
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+clap = { version = "4", features = ["derive", "env"] }
+clap_complete = "4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+sha2 = "0.10"
+thiserror = "2"
+toml = "0.8"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+walkdir = "2"
+
+[dev-dependencies]
+tempfile = "3"
+
+[[bin]]
+name = "dreamcatcher"
+path = "src/main.rs"

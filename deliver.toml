@@ -1,0 +1,40 @@
+# Copyright (c) 2026 sal
+# SPDX-License-Identifier: MIT
+#
+# deliver spec: dreamcatcher self-checks.
+
+[[file]]
+path = "VERSION"
+required = true
+require_regex = ['^0\.1\.0']
+
+[[file]]
+path = "README.md"
+required = true
+require_regex = ["Dreamcatcher"]
+
+[[file]]
+path = "Cargo.toml"
+required = true
+require_regex = ['name = "dreamcatcher"']
+
+[[file]]
+path = "man/dreamcatcher.1"
+required = true
+require_regex = ["\\.SH NAME"]
+
+[[file]]
+path = "src/lib.rs"
+forbid_regex = ["TODO", "FIXME", "XXX"]
+
+[[command]]
+name = "cargo check"
+cmd = ["cargo", "check"]
+expect_exit = 0
+timeout_secs = 300
+
+[[command]]
+name = "cargo test"
+cmd = ["cargo", "test", "--lib", "--test", "integration_test"]
+expect_exit = 0
+timeout_secs = 300
