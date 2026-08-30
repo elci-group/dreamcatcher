@@ -3,6 +3,9 @@
 
 //! Terminal styling: ANSI colours and emoji, gated on TTY and `NO_COLOR`.
 
+use form3::ansi::Color as AnsiColor;
+use form3::compat::Colorize;
+use form3::term::ColorSupport;
 use std::sync::OnceLock;
 
 /// ANSI colour/weight codes used by the output layer.
@@ -24,20 +27,6 @@ pub enum Color {
     Magenta,
 }
 
-impl Color {
-    fn code(self) -> &'static str {
-        match self {
-            Color::Bold => "\x1b[1m",
-            Color::Dim => "\x1b[2m",
-            Color::Cyan => "\x1b[36m",
-            Color::Green => "\x1b[32m",
-            Color::Yellow => "\x1b[33m",
-            Color::Red => "\x1b[31m",
-            Color::Magenta => "\x1b[35m",
-        }
-    }
-}
-
 static ENABLED: OnceLock<bool> = OnceLock::new();
 
 /// Initialise the styling layer. Call once at CLI startup.
@@ -57,9 +46,17 @@ pub fn should_enable(is_tty: bool) -> bool {
 
 /// Wrap `text` in the given colour when styling is enabled.
 pub fn paint(color: Color, text: &str) -> String {
-    if enabled() {
-        format!("{}{}\x1b[0m", color.code(), text)
-    } else {
-        text.to_string()
+    if !enabled() {
+        return text.to_string();
     }
+    let styled = match color {
+        Color::Bold => text.bold(),
+        Color::Dim => text.dimmed(),
+        Color::Cyan => text.color(AnsiColor::Cyan),
+        Color::Green => text.color(AnsiColor::Green),
+        Color::Yellow => text.color(AnsiColor::Yellow),
+        Color::Red => text.color(AnsiColor::Red),
+        Color::Magenta => text.color(AnsiColor::Magenta),
+    };
+    styled.with_color_support(ColorSupport::Standard16).to_string()
 }
