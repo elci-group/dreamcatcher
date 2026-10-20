@@ -16,3 +16,10 @@ Cargo.lock.tmp
 *.swo
 .DS_Store
 *.log
+.azusa/
+.kaptaind/
+.lwoodz/
+.uni/
+.traci/
+.orb
+.env
